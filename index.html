@@ -1005,6 +1005,7 @@ function showPage(p) {
           <button class="${authMode === 'signin' ? 'active' : ''}" onclick="showPage('login')">Sign in</button>
           <button class="${authMode === 'signup' ? 'active' : ''}" onclick="showPage('signup')">Create account</button>
         </div>
+        <div id="authAlert" class="notice hidden" style="margin:14px 0"></div>
         ${authMode === 'signup' ? `
           <div class="field">
             <label>Full name</label>
@@ -1021,6 +1022,9 @@ function showPage(p) {
         </div>
         <button class="btn full" onclick="handleAuthSubmit()">
           ${authMode === 'signup' ? 'Create Supabase Account' : 'Sign In'}
+        </button>
+        <button class="btn light full" style="margin-top:12px;font-size:14px" onclick="handleGuestLogin()">
+          ⚡ Quick Demo Login (Skip Authentication)
         </button>
         <div class="headerline muted" style="margin-top:22px">
           <button style="border:0;background:none;color:inherit;font-size:14px" onclick="toast('Password reset email feature is active with verified Supabase SMTP')">Forgot password?</button>
@@ -2071,16 +2075,14 @@ window.reinitSupabase = function() {
 };
 
 window.handleGoogleSignIn = async function() {
+  const alertEl = $('#authAlert');
+  if (alertEl) { alertEl.classList.add('hidden'); alertEl.innerHTML = ''; }
+
   if (!supabase) {
-    toast('Demo mode: Supabase not configured. Connecting demo account...');
-    data.authenticated = true;
-    data.user.name = 'Deepak Naruka';
-    data.user.email = 'deepak@reautoconnect.com';
-    save();
-    showPage('home');
-    toast('Signed in via Demo Account');
+    window.handleGuestLogin();
     return;
   }
+
   try {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -2090,17 +2092,37 @@ window.handleGoogleSignIn = async function() {
     });
     if (error) throw error;
   } catch(err) {
-    toast('Google Sign-In: ' + (err.message || 'Check OAuth setup in Supabase Dashboard'));
+    console.error('Google Sign-In error:', err);
+    if (alertEl) {
+      alertEl.classList.remove('hidden');
+      alertEl.innerHTML = `🔑 <b>Google Sign-In Not Configured Yet</b><br>Google Login requires a Google Cloud Client ID to be connected in your Supabase project.<br><br>👉 <i>To log in immediately, use <b>Email & Password</b> or click <b>"Quick Demo Login"</b> below!</i>`;
+    }
+    toast('Google OAuth needs setup in Supabase Dashboard');
   }
+};
+
+window.handleGuestLogin = function() {
+  data.authenticated = true;
+  data.user.name = data.user.name || 'Deepak Naruka';
+  data.user.email = data.user.email || 'deepak@reautoconnect.com';
+  save();
+  toast('Signed in as Guest!');
+  showPage('home');
 };
 
 window.handleAuthSubmit = async function() {
   const email = $('#authEmail')?.value.trim();
-  const pass = $('#authPass')?.value;
+  const password = $('#authPass')?.value;
   const fullName = $('#authName')?.value?.trim() || 'Rider';
+  const alertEl = $('#authAlert');
+  if (alertEl) { alertEl.classList.add('hidden'); alertEl.innerHTML = ''; }
 
-  if (!email || !pass || pass.length < 6) {
-    toast('Enter a valid email and password (minimum 6 characters)');
+  if (!email || !password || password.length < 6) {
+    if (alertEl) {
+      alertEl.classList.remove('hidden');
+      alertEl.innerHTML = '⚠️ Please enter a valid email and a password of at least 6 characters.';
+    }
+    toast('Enter valid email and 6+ character password');
     return;
   }
 
@@ -2125,16 +2147,43 @@ window.handleAuthSubmit = async function() {
         }
       });
       if (error) throw error;
-      toast('Account created! Please check your email or proceed to sign in.');
-      showPage('home');
+      if (res && res.session) {
+        data.authenticated = true;
+        data.user.email = email;
+        data.user.name = fullName;
+        save();
+        toast('Account created and signed in!');
+        showPage('home');
+      } else {
+        if (alertEl) {
+          alertEl.classList.remove('hidden');
+          alertEl.innerHTML = `✉️ <b>Confirmation Email Sent!</b><br>Supabase requires email confirmation before logging in. Please check your inbox for <b>${escapeHtml(email)}</b>.<br><br><small>💡 <b>Tip for Developers:</b> To allow instant sign-in without email confirmation, go to <b>Supabase Dashboard → Authentication → Providers → Email</b> and turn OFF <i>"Confirm email"</i>.</small>`;
+        }
+        toast('Confirmation email sent to ' + email);
+      }
     } else {
       const { data: res, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      toast('Signed in successfully with Supabase!');
-      showPage('home');
+      if (res && res.user) {
+        data.authenticated = true;
+        data.user.email = res.user.email;
+        data.user.name = res.user.user_metadata?.full_name || data.user.name;
+        save();
+        toast('Signed in successfully!');
+        showPage('home');
+      }
     }
   } catch(err) {
-    toast('Auth Error: ' + err.message);
+    console.error('Auth error:', err);
+    if (alertEl) {
+      alertEl.classList.remove('hidden');
+      if (err.message && err.message.includes('Email not confirmed')) {
+        alertEl.innerHTML = `⚠️ <b>Email Not Confirmed</b><br>Supabase has not verified this email address yet.<br><br>👉 Check your email inbox for the verification link.<br>👉 Or in <b>Supabase Dashboard → Authentication → Providers → Email</b>, toggle OFF <i>"Confirm email"</i> to enable instant login.`;
+      } else {
+        alertEl.innerHTML = `❌ <b>Auth Error:</b> ${escapeHtml(err.message || 'Login failed')}`;
+      }
+    }
+    toast('Auth: ' + (err.message || 'Error occurred'));
   }
 };
 
