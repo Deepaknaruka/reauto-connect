@@ -8,8 +8,58 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Georgia&display=swap" rel="stylesheet">
+<!-- Leaflet.js for Interactive Real-Time GPS Tracking Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
 <style>
+@keyframes scooterBounce {
+  from { transform: translateY(0) rotate(-2deg); }
+  to { transform: translateY(-4px) rotate(2deg); }
+}
+@keyframes markerPulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22,134,91,0.5); }
+  70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(22,134,91,0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22,134,91,0); }
+}
+.custom-tech-icon {
+  background: transparent !important;
+  border: 0 !important;
+}
+.custom-cust-icon {
+  background: transparent !important;
+  border: 0 !important;
+}
+.tech-marker-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #ffffff;
+  padding: 5px 12px;
+  border-radius: 24px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.22);
+  border: 2.5px solid #16865b;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 850;
+  color: #16865b;
+  gap: 6px;
+  animation: markerPulse 2s infinite;
+}
+.mini-scooter {
+  font-size: 20px;
+  display: inline-block;
+  animation: scooterBounce 0.5s infinite alternate ease-in-out;
+}
+#liveTrackingMap {
+  background: #eef3eb;
+}
+#liveTrackingMap .leaflet-popup-content-wrapper {
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 13px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
 :root{
   --gold:#a87300;
   --gold2:#b17b00;
@@ -1145,16 +1195,49 @@ function showPage(p) {
         <textarea id="problemDesc" placeholder="e.g. Scooter died near Sector 18. BMS is blinking red, refuses to accelerate."></textarea>
       </div>
 
-      <div class="card location-card">
-        <div style="font-size:28px;color:var(--gold)">◎</div>
+      <div class="card location-card" style="align-items:center">
+        <div style="font-size:32px;color:var(--gold)">📍</div>
         <div style="flex:1">
-          <b style="font-size:20px">Your Dispatch Location</b>
-          <p id="locationText" class="muted" style="font-size:16px;margin:6px 0">${data.lat && data.lng ? data.lat + ', ' + data.lng + ' · ' + (data.user.city || 'Alwar, Rajasthan') : 'Location ready'}</p>
+          <div style="display:flex;align-items:center;gap:8px">
+            <b style="font-size:19px">Dispatch Location</b>
+            <span class="status ${data.demoLocation ? '' : 'assigned'}" style="font-size:11px;padding:3px 9px">
+              ${data.demoLocation ? '● Saved Hub (Alwar)' : '● Live GPS Active'}
+            </span>
+          </div>
+          <p id="locationText" class="muted" style="font-size:15px;margin:5px 0 0">${data.lat && data.lng ? data.lat + ', ' + data.lng + ' · ' + (data.user.city || 'Alwar, Rajasthan') : 'Location ready'}</p>
         </div>
-        <button class="btn light" onclick="useDemoLocation()">◎ Reset GPS</button>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn light" style="min-height:38px;padding:6px 12px;font-size:13px" onclick="getLocation()">◎ Get Live GPS</button>
+          <button class="btn light" style="min-height:38px;padding:6px 12px;font-size:13px" onclick="useDemoLocation()">Reset Pin</button>
+        </div>
       </div>
 
-      <button class="btn full" id="findBtn" onclick="confirmEmergencyRequest()">Find Technician Near Me</button>
+      <!-- Roadside Inspection & Dispatch Fee Card -->
+      <div class="card" style="background:#fffcf5;border:1.5px solid #dfd0ac;padding:20px;margin:18px 0">
+        <div class="headerline">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:20px">⚡</span>
+              <b style="font-size:19px;color:#171717">Roadside Diagnostic & Dispatch Fee</b>
+            </div>
+            <p class="muted small" style="margin:4px 0 0">Guaranteed technician arrival within 12-15 minutes. Includes initial roadside EV health check & diagnosis.</p>
+          </div>
+          <div style="text-align:right">
+            <span style="font-size:28px;font-weight:900;color:var(--gold)">₹99</span>
+            <div class="muted small" style="font-size:11px">Flat Callout</div>
+          </div>
+        </div>
+        <div class="divider" style="margin:14px 0"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#555;flex-wrap:wrap;gap:8px">
+          <span>💳 Payment Mode: <b>Pay on Arrival (Cash / UPI to Technician)</b></span>
+          <span style="color:#16865b;font-weight:750">✓ No advance deposit needed</span>
+        </div>
+      </div>
+
+      <button class="btn full" id="findBtn" onclick="confirmEmergencyRequest()">
+        <span>Confirm Emergency Help & Dispatch</span>
+        <span style="margin-left:auto;background:rgba(0,0,0,0.22);padding:5px 14px;border-radius:12px;font-size:16px;font-weight:900">₹99 ›</span>
+      </button>
     `;
   } else if (p === 'searching') {
     html = `
@@ -1530,32 +1613,38 @@ function viewRequestDetails(id) {
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div>
             <div class="muted small">Estimated Arrival</div>
-            <div class="eta-number">${escapeHtml(String(r.technician?.eta || r.technician_eta || 12))} min</div>
+            <div class="eta-number" id="etaMinutes">${escapeHtml(String(r.technician?.eta || r.technician_eta || 12))} min</div>
           </div>
           <div class="muted small" style="text-align:right">
             Dispatch #${escapeHtml(String(r.id).slice(-6))}<br>
-            Alwar Hub
+            Fee: <b style="color:var(--gold);font-size:16px">₹99</b> (Pay on arrival)
           </div>
         </div>
       </div>
 
       <div class="card track-card">
-        <div class="track-map">
-          <iframe title="Technician route" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${mapUrl}"></iframe>
-          <div class="map-pill"><span class="map-pulse"></span>Live Technician Route</div>
+        <div style="position:relative;background:#eef3eb;overflow:hidden;border-radius:28px 28px 0 0">
+          <div id="liveTrackingMap" style="height:340px;width:100%;z-index:1"></div>
+          <div class="map-pill" id="trackingStatusPill" style="z-index:500;box-shadow:0 4px 15px rgba(0,0,0,0.18)">
+            <span class="map-pulse"></span>Live Technician GPS Moving
+          </div>
         </div>
         <div class="track-body">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span class="muted small"><b>Live GPS Journey</b></span>
+            <span id="etaDistance" style="font-weight:800;color:#16865b;font-size:14px">1.8 km away</span>
+          </div>
           <div class="route-progress">
-            <span style="width:${r.status === 'Arrived' ? '100%' : (r.status === 'On The Way' ? '65%' : '30%')}"></span>
+            <span id="trackingProgressBar" style="width:${r.status === 'Arrived' ? '100%' : '15%'}"></span>
           </div>
           <div class="tracking-steps">
             <div class="tracking-step ${['Technician Assigned', 'On The Way', 'Arrived'].includes(r.status) ? 'active' : ''}">Assigned</div>
-            <div class="tracking-step ${['On The Way', 'Arrived'].includes(r.status) ? 'active' : ''}">On the way</div>
+            <div class="tracking-step ${['On The Way', 'Arrived'].includes(r.status) ? 'active' : ''}">Moving to you</div>
             <div class="tracking-step ${r.status === 'Arrived' ? 'active' : ''}">Arrived</div>
           </div>
-          <div class="map-tools">
-            <button class="btn" onclick="window.open('${routeUrl}','_blank','noopener')">↗ Open in Google Maps</button>
-            <button class="btn light" onclick="viewRequestDetails(${id})">⟳ Refresh Map</button>
+          <div class="map-tools" style="margin-top:16px">
+            <button class="btn" onclick="window.open('${routeUrl}','_blank','noopener')">↗ Open Turn-by-Turn in Google Maps</button>
+            <button class="btn light" onclick="resetLiveTrackingAnimation(${clat}, ${clng}, ${tlat}, ${tlng})">⟳ Re-center Technician</button>
           </div>
         </div>
       </div>
@@ -1578,6 +1667,176 @@ function viewRequestDetails(id) {
       ` : ''}
     </div>
   `;
+
+  if (isAssigned) {
+    setTimeout(() => {
+      initLiveTrackingMap(clat, clng, tlat, tlng, r);
+    }, 60);
+  }
+}
+
+let liveMapInstance = null;
+let liveTechMarker = null;
+let liveCustMarker = null;
+let livePolyline = null;
+let liveTrackingInterval = null;
+let liveProgress = 0.08;
+
+function initLiveTrackingMap(custLat, custLng, techLat, techLng, req) {
+  if (liveTrackingInterval) {
+    clearInterval(liveTrackingInterval);
+    liveTrackingInterval = null;
+  }
+
+  const mapContainer = document.getElementById('liveTrackingMap');
+  if (!mapContainer) return;
+
+  if (typeof L === 'undefined') {
+    mapContainer.innerHTML = '<div style="padding:40px;text-align:center"><div class="pulse-dot"></div> Loading satellite GPS map...</div>';
+    return;
+  }
+
+  if (liveMapInstance) {
+    try {
+      liveMapInstance.off();
+      liveMapInstance.remove();
+    } catch(e) {}
+    liveMapInstance = null;
+  }
+
+  try {
+    const midLat = (custLat + techLat) / 2;
+    const midLng = (custLng + techLng) / 2;
+
+    liveMapInstance = L.map('liveTrackingMap', {
+      zoomControl: true,
+      attributionControl: false
+    }).setView([midLat, midLng], 14);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    }).addTo(liveMapInstance);
+
+    // Custom Customer Pin 📍
+    const custIcon = L.divIcon({
+      className: 'custom-cust-icon',
+      html: `
+        <div style="position:relative;text-align:center">
+          <div class="pulse-dot" style="position:absolute;top:-6px;left:0;width:34px;height:34px;background:rgba(183,123,8,0.3);border-radius:50%"></div>
+          <div style="font-size:32px;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.35))">📍</div>
+          <div style="background:#fff;border:1.5px solid var(--gold);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:800;white-space:nowrap;margin-top:-6px;box-shadow:0 2px 6px rgba(0,0,0,0.15)">You are here</div>
+        </div>
+      `,
+      iconSize: [80, 50],
+      iconAnchor: [40, 40]
+    });
+    liveCustMarker = L.marker([custLat, custLng], { icon: custIcon }).addTo(liveMapInstance);
+
+    // Initial technician coordinates
+    let curLat = techLat;
+    let curLng = techLng;
+
+    // Mini Technician Scooter Icon 🛵
+    const techName = req.technician?.name || req.technician_name || 'Rakesh Sharma';
+    const techIcon = L.divIcon({
+      className: 'custom-tech-icon',
+      html: `
+        <div class="tech-marker-badge">
+          <span class="mini-scooter">🛵</span>
+          <span>${escapeHtml(techName.split(' ')[0])} (Tech)</span>
+        </div>
+      `,
+      iconSize: [120, 36],
+      iconAnchor: [60, 18]
+    });
+
+    liveTechMarker = L.marker([curLat, curLng], { icon: techIcon }).addTo(liveMapInstance);
+
+    // Route polyline (dashed green line)
+    livePolyline = L.polyline([
+      [curLat, curLng],
+      [custLat, custLng]
+    ], {
+      color: '#16865b',
+      weight: 5,
+      dashArray: '10, 8',
+      opacity: 0.85
+    }).addTo(liveMapInstance);
+
+    liveMapInstance.fitBounds(L.latLngBounds([[techLat, techLng], [custLat, custLng]]), {
+      padding: [50, 50]
+    });
+
+    // Reset progress to 10%
+    liveProgress = 0.10;
+
+    // Animate technician moving step-by-step
+    liveTrackingInterval = setInterval(() => {
+      liveProgress += 0.04;
+      
+      if (liveProgress >= 0.98) {
+        liveProgress = 1.0;
+        clearInterval(liveTrackingInterval);
+        liveTrackingInterval = null;
+        
+        curLat = custLat;
+        curLng = custLng;
+        liveTechMarker.setLatLng([curLat, curLng]);
+        if (livePolyline) livePolyline.setLatLngs([[curLat, curLng], [custLat, custLng]]);
+
+        const etaEl = document.getElementById('etaMinutes');
+        if (etaEl) etaEl.textContent = 'Arrived!';
+        const distEl = document.getElementById('etaDistance');
+        if (distEl) distEl.textContent = 'Reached Your Location';
+        const pill = document.getElementById('trackingStatusPill');
+        if (pill) {
+          pill.className = 'status assigned';
+          pill.innerHTML = '<span class="pulse-dot"></span>Technician has arrived!';
+        }
+        const bar = document.getElementById('trackingProgressBar');
+        if (bar) bar.style.width = '100%';
+
+        req.status = 'Arrived';
+        save();
+        if (window.supabaseUpdateJobStatus) window.supabaseUpdateJobStatus(req.id, 'Arrived');
+        toast(`🛵 Technician ${techName} has arrived at your location!`);
+        return;
+      }
+
+      curLat = techLat + (custLat - techLat) * liveProgress;
+      curLng = techLng + (custLng - techLng) * liveProgress;
+
+      liveTechMarker.setLatLng([curLat, curLng]);
+      if (livePolyline) {
+        livePolyline.setLatLngs([
+          [curLat, curLng],
+          [custLat, custLng]
+        ]);
+      }
+
+      const remainingKm = Math.max(0.1, ((1 - liveProgress) * 2.2)).toFixed(1);
+      const distEl = document.getElementById('etaDistance');
+      if (distEl) distEl.textContent = remainingKm + ' km away';
+
+      const remainingMins = Math.max(1, Math.round(12 * (1 - liveProgress)));
+      const etaEl = document.getElementById('etaMinutes');
+      if (etaEl) etaEl.textContent = remainingMins + ' min';
+
+      const bar = document.getElementById('trackingProgressBar');
+      if (bar) bar.style.width = Math.round(liveProgress * 100) + '%';
+    }, 1200);
+
+  } catch(err) {
+    console.warn('Map initialization error:', err);
+  }
+}
+
+function resetLiveTrackingAnimation(custLat, custLng, techLat, techLng) {
+  const req = data.requests[0];
+  if (req) {
+    initLiveTrackingMap(custLat, custLng, techLat, techLng, req);
+    toast('Technician GPS tracking re-centered');
+  }
 }
 
 function startCountdown() {
@@ -1656,6 +1915,7 @@ function useDemoLocation() {
 }
 
 function getLocation() {
+  toast('Acquiring high-accuracy live GPS satellite fix...');
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       pos => {
@@ -1663,14 +1923,22 @@ function getLocation() {
         data.lng = pos.coords.longitude.toFixed(5);
         data.demoLocation = false;
         save();
-        toast(`Live GPS coordinates locked: ${data.lat}, ${data.lng}`);
+        toast(`📍 Live GPS Locked: ${data.lat}, ${data.lng}`);
         showPage(page);
       },
       err => {
+        console.warn('Geolocation error:', err);
+        toast('GPS access denied or timed out. Defaulted to Alwar pin.');
         useDemoLocation();
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
       }
     );
   } else {
+    toast('Geolocation not supported by this browser. Using Alwar pin.');
     useDemoLocation();
   }
 }
@@ -2204,7 +2472,7 @@ window.confirmEmergencyRequest = async function() {
     toast('Please describe the EV problem');
     return;
   }
-  createDispatch(problem, 'Emergency', desc, 0, []);
+  createDispatch(problem, 'Emergency', desc, 99, ['Roadside EV Inspection & Dispatch']);
 };
 
 window.handleBookService = function() {
