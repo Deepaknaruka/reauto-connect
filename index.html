@@ -1,0 +1,2302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>reautoconnect — EV Assistance & Roadside Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Georgia&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --gold:#a87300;
+  --gold2:#b17b00;
+  --gold-glow:rgba(183,123,8,0.18);
+  --ink:#171717;
+  --muted:#707574;
+  --line:#dce1df;
+  --soft:#f5f7f6;
+  --cream:#fbf4e7;
+  --red:#c9343b;
+  --green:#16865b;
+  --bg:#fff;
+  --card:#fff;
+  --shadow:0 10px 30px rgba(20,28,24,.055);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(ellipse at 50% -20%,#fff8e8 0,transparent 50%),var(--bg);
+  color:var(--ink);
+  font:16px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  width:100%;
+  min-width:0;
+  overflow-x:hidden;
+}
+button,input,select,textarea{font:inherit;-webkit-tap-highlight-color:transparent}
+button,a{cursor:pointer;touch-action:manipulation}
+img,iframe,video,canvas,svg{max-width:100%}
+
+.app{
+  max-width:850px;
+  margin:auto;
+  min-height:100dvh;
+  padding-bottom:104px;
+}
+.top{
+  height:88px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 20px;
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(16px);
+  z-index:100;
+  box-shadow:0 5px 24px rgba(15,20,18,.035);
+}
+.logo{
+  height:52px;
+  width:52px;
+  border-radius:18px;
+  background:linear-gradient(145deg,#25282c,#08090b);
+  display:grid;
+  place-items:center;
+  color:white;
+  font-weight:900;
+  font-size:24px;
+  flex-shrink:0;
+  letter-spacing:-2px;
+  box-shadow:0 8px 18px #1112;
+  transition:transform .25s;
+}
+.logo:hover{transform:rotate(-5deg) scale(1.04)}
+.brand{
+  font-size:24px;
+  font-weight:850;
+  letter-spacing:-.8px;
+}
+.top-actions{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.country{
+  border-radius:30px;
+  background:var(--soft);
+  padding:7px 14px;
+  color:var(--gold);
+  font-weight:750;
+  font-size:13px;
+  white-space:nowrap;
+}
+.backend-pill{
+  border-radius:30px;
+  padding:7px 14px;
+  font-weight:750;
+  font-size:12px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid transparent;
+  cursor:pointer;
+  transition:all .2s;
+  background:var(--soft);
+}
+.backend-pill.connected{
+  background:#eef8f3;
+  color:#15803d;
+  border-color:#bbf7d0;
+}
+.backend-pill.demo{
+  background:#fff9eb;
+  color:#b45309;
+  border-color:#fde68a;
+}
+.backend-pill:hover{transform:scale(1.02)}
+
+.pulse-dot{
+  display:inline-block;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#22c55e;
+  box-shadow:0 0 0 0 rgba(34,197,94,0.4);
+  animation:pulse 1.6s infinite;
+}
+.pulse-dot.amber{
+  background:#f59e0b;
+  box-shadow:0 0 0 0 rgba(245,158,11,0.4);
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(34,197,94,0.4)}
+  70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}
+  100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}
+}
+
+.content{padding:26px 22px}
+.content>*{animation:riseIn .32s ease both}
+@keyframes riseIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.title{font-size:34px;line-height:1.2;letter-spacing:-1px;margin:8px 0 12px;font-weight:850}
+.sub{font-size:20px;color:var(--muted);line-height:1.5;margin:0 0 28px}
+.card{
+  border:1.5px solid var(--line);
+  border-radius:28px;
+  padding:24px;
+  margin:18px 0;
+  background:var(--card);
+  box-shadow:var(--shadow);
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+}
+.card:hover{
+  box-shadow:0 14px 34px rgba(20,28,24,.09);
+  border-color:#d4c08e;
+}
+
+.section-label{
+  font-size:16px;
+  font-weight:850;
+  letter-spacing:.5px;
+  color:#686d6b;
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:28px 0 12px;
+}
+.section-label:before{
+  content:"";
+  height:22px;
+  width:6px;
+  border-radius:6px;
+  background:var(--gold);
+}
+
+.btn{
+  border:0;
+  border-radius:18px;
+  background:linear-gradient(135deg,#c18a17,#a86d00);
+  color:#17130b;
+  padding:15px 20px;
+  font-weight:800;
+  min-height:54px;
+  box-shadow:0 7px 16px rgba(168,109,0,.16);
+  transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+}
+.btn:hover{
+  filter:saturate(1.12);
+  box-shadow:0 10px 22px rgba(168,109,0,.22);
+  transform:translateY(-1px);
+}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.48;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.full{width:100%}
+.btn.light{
+  background:#fff;
+  border:1.5px solid var(--line);
+  color:var(--ink);
+  box-shadow:none;
+}
+.btn.light:hover{border-color:var(--gold);background:#fffdf9}
+.btn.google{
+  background:white;
+  border:1.5px solid var(--line);
+  box-shadow:0 2px 4px #0001;
+  color:#111;
+  gap:10px;
+}
+.google-g{
+  display:inline-grid;
+  place-items:center;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  font-weight:900;
+  font-size:19px;
+  color:#4285f4;
+  background:#fff;
+}
+
+.field{display:flex;flex-direction:column;gap:8px;margin:16px 0}
+.field label{font-weight:750;color:#696e6c;font-size:15px}
+.field input,.field select,.field textarea{
+  width:100%;
+  border:1.5px solid var(--line);
+  border-radius:16px;
+  padding:15px 17px;
+  background:white;
+  color:#171717;
+  outline:none;
+  min-height:54px;
+  transition:border-color .2s;
+}
+.field textarea{min-height:120px;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold)}
+.muted{color:var(--muted)}
+.welcome{text-align:center;font-family:Georgia,serif;font-size:40px;margin:28px 0 14px;font-weight:400}
+.login-card{max-width:560px;margin:24px auto}
+
+.tabs{
+  display:flex;
+  background:var(--soft);
+  padding:5px;
+  border-radius:22px;
+  margin:20px 0;
+}
+.tabs button{
+  flex:1;
+  border:0;
+  border-radius:18px;
+  background:transparent;
+  padding:12px 6px;
+  font-weight:800;
+  color:var(--muted);
+  transition:all .2s;
+}
+.tabs button.active{
+  background:white;
+  color:#171717;
+  box-shadow:0 2px 6px #0001;
+}
+
+.hero{
+  background:linear-gradient(135deg,#c18a17,#a86d00);
+  border-radius:34px;
+  padding:32px;
+  margin:32px 0;
+  color:#fff;
+  box-shadow:0 12px 30px rgba(168,109,0,.25);
+}
+.hero small{font-size:19px;opacity:.9;text-transform:uppercase;letter-spacing:1px}
+.hero h2{font-size:38px;margin:6px 0 26px;color:#fff}
+.hero-inner{
+  background:rgba(0,0,0,0.18);
+  border:1px solid rgba(255,255,255,0.25);
+  border-radius:28px;
+  padding:20px 22px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+.hero-inner .btn{
+  margin-left:auto;
+  border-radius:24px;
+  background:#fff;
+  color:var(--gold);
+  white-space:nowrap;
+  box-shadow:0 4px 12px #0002;
+}
+
+.notice{
+  border:1.5px solid #dfd0ac;
+  background:#fbf5e9;
+  border-radius:18px;
+  padding:15px 18px;
+  font-weight:650;
+  margin:8px 0 22px;
+  color:#594419;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.notice.success{
+  border-color:#bbf7d0;
+  background:#f0fdf4;
+  color:#166534;
+}
+
+.location-card{display:flex;align-items:flex-start;gap:16px}
+.location-card .btn{margin-left:auto;white-space:nowrap;padding:12px 16px;min-height:46px}
+
+.iconbox{
+  width:78px;
+  height:78px;
+  display:grid;
+  place-items:center;
+  border-radius:24px;
+  background:#f5f7f6;
+  color:var(--gold);
+  font-size:30px;
+  flex-shrink:0;
+}
+.emergency{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  background:#fff7f7;
+  border-color:#f0d3d5;
+}
+.emergency .iconbox{background:var(--red);color:white}
+.emergency h3,.tile h3{font-size:23px;margin:0 0 6px}
+.emergency p,.tile p{font-size:18px;color:var(--muted);margin:0}
+.chev{margin-left:auto;font-size:28px;color:#6e7472}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+}
+.tile{
+  border:1.5px solid var(--line);
+  border-radius:30px;
+  padding:24px 22px;
+  min-height:210px;
+  background:#fff;
+  text-align:left;
+  box-shadow:var(--shadow);
+  transition:all .22s ease;
+}
+.tile:hover{transform:translateY(-3px);border-color:#d4c08e}
+.tile .iconbox{width:74px;height:74px;margin-bottom:18px}
+
+.request-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.status{
+  background:#fbf1df;
+  border:1px solid #eed8a8;
+  border-radius:24px;
+  padding:7px 14px;
+  font-weight:750;
+  font-size:13px;
+  color:#49351b;
+  white-space:nowrap;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+}
+.status:before{content:"●";font-size:10px;color:#b77b08}
+.status.assigned{background:#eaf6ef;border-color:#cfe9da;color:#16865b}
+.status.assigned:before{color:#16865b}
+.status.cancelled{background:#eef3f1;border-color:var(--line);color:#666}
+.status.cancelled:before{color:#999}
+.request-bottom{
+  border-top:1.5px solid var(--line);
+  padding:16px;
+  text-align:center;
+  color:var(--gold);
+  font-weight:850;
+  font-size:20px;
+  margin:18px -24px -24px;
+  cursor:pointer;
+  transition:background .2s;
+}
+.request-bottom:hover{background:#fcf8ef}
+
+.empty{
+  border:1.5px dashed var(--line);
+  border-radius:28px;
+  padding:45px 20px;
+  text-align:center;
+  background:#fcfcfc;
+}
+.empty .iconbox{
+  border-radius:50%;
+  width:80px;
+  height:80px;
+  margin:0 auto 20px;
+  background:white;
+  color:#777;
+  box-shadow:var(--shadow);
+}
+.empty h3{font-size:21px;margin:0 0 8px}
+.empty p{font-size:18px;color:var(--muted);margin:0}
+
+.nav{
+  position:fixed;
+  bottom:12px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(810px,calc(100% - 32px));
+  background:#fffffff2;
+  backdrop-filter:blur(12px);
+  border:1.5px solid var(--line);
+  border-radius:20px;
+  padding:8px 10px;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  z-index:90;
+  box-shadow:0 12px 35px rgba(12,18,15,.12);
+}
+.nav button{
+  border:0;
+  background:transparent;
+  border-radius:16px;
+  padding:8px 2px;
+  color:#6c7270;
+  font-weight:750;
+  font-size:14px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+  transition:all .18s;
+}
+.nav button .navicon{font-size:24px;line-height:1}
+.nav button.active{
+  background:var(--gold);
+  color:#17130b;
+  box-shadow:0 5px 14px rgba(168,109,0,.2);
+}
+
+.choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.choice{
+  border:1.5px solid var(--line);
+  border-radius:16px;
+  padding:15px;
+  text-align:center;
+  background:#fff;
+  font-weight:600;
+  transition:all .2s;
+}
+.choice.selected{
+  border-color:var(--gold);
+  background:#fcf8ef;
+  color:var(--gold);
+  font-weight:800;
+}
+.subcard{
+  border:1.5px solid var(--line);
+  border-radius:22px;
+  padding:18px;
+  margin:12px 0;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  transition:all .2s;
+}
+.subcard .iconbox{width:64px;height:64px}
+.subcard h3{margin:0 0 4px;font-size:20px}
+.subcard p{margin:0;color:var(--muted);font-size:16px}
+
+.service-option{
+  border:1.5px solid var(--line);
+  border-radius:18px;
+  padding:18px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin:12px 0;
+  transition:all .2s;
+}
+.service-option input{width:22px;height:22px;accent-color:var(--gold)}
+.service-option .price{margin-left:auto;font-size:21px;font-weight:850;white-space:nowrap}
+
+.profile-head{display:flex;align-items:center;gap:20px;margin-bottom:22px}
+.profile-head .iconbox{border-radius:50%}
+.profile-head h1{font-size:34px;margin:0}
+.profile-head p{font-size:18px;margin:4px 0;color:var(--muted);overflow-wrap:anywhere}
+
+.segmented{display:flex;background:var(--soft);padding:5px;border-radius:16px}
+.segmented button{
+  flex:1;
+  border:0;
+  background:transparent;
+  border-radius:12px;
+  padding:13px 4px;
+  color:var(--muted);
+  font-weight:750;
+  transition:all .2s;
+}
+.segmented button.active{
+  background:white;
+  color:#171717;
+  box-shadow:0 1px 4px #0001;
+}
+
+.timer{
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  border:10px solid var(--gold);
+  display:grid;
+  place-items:center;
+  font-size:42px;
+  font-weight:850;
+  margin:0 auto 32px;
+  box-shadow:0 0 0 9px rgba(183,123,8,0.12);
+  animation:breathe 1.8s ease-in-out infinite;
+}
+@keyframes breathe{
+  0%,100%{box-shadow:0 0 0 8px rgba(183,123,8,0.1)}
+  50%{box-shadow:0 0 0 15px rgba(183,123,8,0.2)}
+}
+
+.center{text-align:center}
+.notification{padding:16px 0;border-bottom:1px solid var(--line)}
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:110px;
+  transform:translateX(-50%);
+  background:#1d1d1d;
+  color:white;
+  padding:13px 22px;
+  border-radius:14px;
+  z-index:200;
+  max-width:90%;
+  box-shadow:0 5px 25px rgba(0,0,0,.35);
+  font-weight:600;
+  font-size:15px;
+  text-align:center;
+  animation:popIn .2s ease;
+}
+@keyframes popIn{from{transform:translate(-50%,12px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+.hidden{display:none!important}
+.back{
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  padding:0;
+  margin-bottom:20px;
+  font-size:19px;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-weight:700;
+}
+.back:hover{color:var(--ink)}
+.headerline{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.small{font-size:14px}
+.divider{height:1px;background:var(--line);margin:16px 0}
+.pricebox{font-size:24px;font-weight:850;color:var(--gold)}
+.support p{font-size:18px;margin:8px 0;color:var(--muted)}
+
+.demo-map{
+  height:155px;
+  border-radius:22px;
+  overflow:hidden;
+  position:relative;
+  background-color:#edf3e8;
+  background-image:linear-gradient(25deg,transparent 46%,#fff 47%,#fff 50%,transparent 51%),linear-gradient(115deg,transparent 45%,#fff 46%,#fff 49%,transparent 50%),linear-gradient(0deg,transparent 48%,#d9e7d2 49%,#d9e7d2 52%,transparent 53%);
+  background-size:120px 90px,150px 110px,100% 70px;
+  border:1px solid #dce7d7;
+}
+.demo-map:before{
+  content:'';
+  position:absolute;
+  width:14px;
+  height:14px;
+  border-radius:50% 50% 50% 0;
+  background:#bd3038;
+  transform:rotate(-45deg);
+  left:48%;
+  top:42%;
+  box-shadow:0 0 0 8px rgba(189,48,56,0.18);
+}
+.demo-map:after{
+  content:'ALWAR, RAJASTHAN (LIVE DISPATCH)';
+  position:absolute;
+  left:12px;
+  bottom:12px;
+  background:#fff;
+  padding:6px 10px;
+  border-radius:8px;
+  font-size:11px;
+  font-weight:850;
+  letter-spacing:.5px;
+  box-shadow:0 3px 10px #0001;
+}
+
+.map-panel{
+  position:relative;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#f4f5f2;
+  margin:16px 0;
+  box-shadow:0 8px 24px rgba(23,32,24,0.05);
+}
+.map-panel iframe{display:block;width:100%;height:300px;border:0;background:#eef1ed}
+.map-legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  padding:12px 14px;
+  background:var(--card);
+  font-size:13px;
+  color:var(--muted);
+}
+.map-legend span{display:inline-flex;align-items:center;gap:6px}
+.map-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#b98413}
+.map-dot.tech{background:#168b60}
+.map-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.map-actions .btn{flex:1;min-width:145px}
+
+.track-card{overflow:hidden;padding:0!important}
+.track-map{height:300px;position:relative;background:#e9eee8;overflow:hidden;border-radius:28px 28px 0 0}
+.track-map iframe{width:100%;height:100%;border:0;display:block}
+.map-pill{
+  position:absolute;
+  top:14px;
+  left:14px;
+  background:#fff;
+  border-radius:12px;
+  padding:9px 12px;
+  box-shadow:0 3px 14px #0002;
+  font-size:13px;
+  font-weight:800;
+  z-index:2;
+}
+.map-pulse{
+  display:inline-block;
+  width:8px;
+  height:8px;
+  background:#16a36a;
+  border-radius:50%;
+  margin-right:7px;
+  box-shadow:0 0 0 0 rgba(22,163,106,0.4);
+  animation:mapPulse 1.7s infinite;
+}
+@keyframes mapPulse{
+  70%{box-shadow:0 0 0 10px rgba(22,163,106,0)}
+  100%{box-shadow:0 0 0 0 rgba(22,163,106,0)}
+}
+.track-body{padding:22px}
+.eta-row{display:flex;align-items:center;gap:14px}
+.eta-number{font-size:34px;font-weight:900;letter-spacing:-1px;color:#16865b}
+.tech-avatar{
+  width:58px;
+  height:58px;
+  border-radius:18px;
+  background:#eaf6ef;
+  display:grid;
+  place-items:center;
+  font-size:28px;
+  flex-shrink:0;
+}
+.route-progress{
+  height:6px;
+  background:#e8ece9;
+  border-radius:10px;
+  margin:18px 0;
+  overflow:hidden;
+}
+.route-progress span{
+  height:100%;
+  width:65%;
+  display:block;
+  background:#16a36a;
+  border-radius:10px;
+  transition:width .4s ease;
+}
+.tracking-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tracking-step{
+  font-size:12px;
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.tracking-step:before{
+  content:"";
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#d3dad5;
+  flex-shrink:0;
+}
+.tracking-step.active{color:#16865b;font-weight:800}
+.tracking-step.active:before{background:#16a36a;box-shadow:0 0 0 4px rgba(22,163,106,0.18)}
+.map-tools{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.map-tools .btn{flex:1;min-width:140px}
+.station-map{height:330px;border:1px solid var(--line);border-radius:24px;overflow:hidden;margin:18px 0}
+.station-map iframe{width:100%;height:100%;border:0}
+.map-search{display:flex;gap:10px}
+.map-search input{min-width:0;flex:1;border:1.5px solid var(--line);border-radius:15px;padding:14px 16px;font:inherit}
+
+.accept-window{
+  padding:14px;
+  background:#fff9ec;
+  border:1px solid #f0d9a4;
+  border-radius:16px;
+  margin:14px 0 10px;
+}
+.accept-progress{height:7px;background:#f0e5cb;border-radius:10px;overflow:hidden;margin-top:10px}
+.accept-progress span{
+  display:block;
+  height:100%;
+  width:100%;
+  background:linear-gradient(90deg,#e8a21a,#bb7c08);
+  border-radius:10px;
+  transform-origin:left;
+  transition:width .25s linear;
+}
+.job-status-actions{display:grid;gap:10px}
+.job-status-actions .btn{width:100%}
+
+/* Supabase Modal */
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(6px);
+  z-index:300;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.modal-window{
+  background:#fff;
+  border-radius:26px;
+  max-width:540px;
+  width:100%;
+  padding:26px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.25);
+  max-height:90vh;
+  overflow-y:auto;
+  position:relative;
+}
+.modal-window h2{margin:0 0 8px;font-size:24px}
+.modal-close{
+  position:absolute;
+  top:18px;
+  right:18px;
+  border:0;
+  background:var(--soft);
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  font-size:18px;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+}
+
+@media(max-width:600px){
+  .app{width:100%;max-width:100%;padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+  .top{padding:10px 14px;height:auto;min-height:68px}
+  .logo{width:42px;height:42px;font-size:20px;border-radius:14px}
+  .brand{font-size:20px}
+  .country{display:none}
+  .content{padding:18px 14px}
+  .title{font-size:28px}
+  .sub{font-size:16px;margin-bottom:20px}
+  .card{padding:18px;border-radius:22px;margin:14px 0}
+  .hero{padding:22px;border-radius:24px;margin:20px 0}
+  .hero h2{font-size:30px;margin-bottom:18px}
+  .hero-inner{flex-wrap:wrap}
+  .hero-inner .btn{margin-left:0;width:100%}
+  .grid{grid-template-columns:1fr 1fr;gap:12px}
+  .tile{padding:16px 14px;min-height:165px;border-radius:20px}
+  .tile .iconbox{width:54px;height:54px;font-size:24px;border-radius:16px;margin-bottom:12px}
+  .tile h3{font-size:18px}
+  .tile p{font-size:14px}
+  .choices{grid-template-columns:repeat(2,1fr)}
+  .nav{bottom:calc(6px + env(safe-area-inset-bottom));width:calc(100% - 16px);padding:6px;border-radius:16px}
+  .nav button{font-size:11px;padding:6px 1px}
+  .nav button .navicon{font-size:20px}
+  .track-map{height:240px}
+  .station-map{height:280px}
+  .timer{width:140px;height:140px;font-size:34px}
+  .toast{bottom:calc(85px + env(safe-area-inset-bottom))}
+  .map-tools{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Top App Bar -->
+  <header class="top">
+    <div class="logo">RΞ</div>
+    <div class="brand">reautoconnect</div>
+    <div class="top-actions">
+      <div class="country">India</div>
+      <button id="backendBadge" class="backend-pill demo" onclick="openSupabaseModal()">
+        <span class="pulse-dot amber" id="backendDot"></span>
+        <span id="backendText">Supabase Setup</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main View -->
+  <main class="content" id="view"></main>
+
+  <!-- Bottom Navigation -->
+  <nav class="nav" id="nav">
+    <button data-page="home" onclick="showPage('home')"><span class="navicon">⌂</span>Home</button>
+    <button data-page="bookings" onclick="showPage('bookings')"><span class="navicon">◎</span>Bookings</button>
+    <button data-page="services" onclick="showPage('services')"><span class="navicon">⚒</span>Services</button>
+    <button data-page="parts" onclick="showPage('parts')"><span class="navicon">⬡</span>Parts</button>
+    <button data-page="profile" onclick="showPage('profile')"><span class="navicon">♙</span>Profile</button>
+  </nav>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- Supabase Connection & Settings Modal -->
+<div id="supabaseModal" class="modal-overlay hidden" onclick="if(event.target===this)closeSupabaseModal()">
+  <div class="modal-window">
+    <button class="modal-close" onclick="closeSupabaseModal()">✕</button>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div style="width:40px;height:40px;border-radius:12px;background:#10b98120;display:grid;place-items:center;font-size:22px;color:#059669">⚡</div>
+      <div>
+        <h2 style="margin:0">Supabase Backend</h2>
+        <p class="muted small" style="margin:0">Live cloud database, Auth & Realtime synchronization</p>
+      </div>
+    </div>
+
+    <div id="connectionStatusBox" class="notice">
+      Checking connection to Supabase...
+    </div>
+
+    <div class="field">
+      <label>Supabase Project URL</label>
+      <input id="modalSupabaseUrl" placeholder="https://your-project-id.supabase.co">
+    </div>
+
+    <div class="field">
+      <label>Supabase Anon Public Key</label>
+      <input id="modalSupabaseKey" type="password" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+      <button class="btn" style="flex:1" onclick="applySupabaseConfig()">Save & Connect</button>
+      <button class="btn light" onclick="testSupabasePing()">Test Connection</button>
+    </div>
+
+    <div class="divider"></div>
+    <div style="font-size:14px;color:var(--muted);line-height:1.5">
+      <b>Quick Setup Guide:</b>
+      <ol style="padding-left:18px;margin:8px 0">
+        <li>Create a free project at <a href="https://supabase.com" target="_blank" style="color:var(--gold);font-weight:700">supabase.com</a></li>
+        <li>Open <b>SQL Editor</b> and run the provided <code>supabase-schema.sql</code></li>
+        <li>Copy your Project URL and Anon Key from <b>Project Settings → API</b> and paste above!</li>
+      </ol>
+      <button class="btn light full" style="margin:12px 0 6px;border-color:var(--gold);color:var(--gold)" onclick="copySchemaFromApp()">📋 Copy SQL Schema to Clipboard</button>
+      <p style="margin-top:6px"><i>Tip: You can also double-click <code>copy_schema_to_clipboard.bat</code> in your project folder!</i></p>
+    </div>
+  </div>
+</div>
+
+<!-- Core Application Script -->
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+let page = 'home';
+let authMode = 'signin';
+let problem = 'Battery';
+let selectedServices = [];
+let countdown = null;
+let seconds = 30;
+
+// Application Data State
+let data = {
+  user: {
+    name: 'Deepak Naruka',
+    email: 'deepak@example.com',
+    phone: '',
+    city: 'Alwar, Rajasthan',
+    brand: '',
+    model: '',
+    reg: '',
+    type: 'Scooter',
+    battery: ''
+  },
+  savedEV: false,
+  lat: '27.34835',
+  lng: '76.69308',
+  demoLocation: true,
+  authenticated: false,
+  requests: [
+    {
+      id: Date.now() - 3600000,
+      type: 'Battery Health & BMS Check',
+      kind: 'Service',
+      status: 'Technician Assigned',
+      date: 'Today, 4:15 PM',
+      description: 'Battery health check and connector cleaning',
+      lat: '27.34835',
+      lng: '76.69308',
+      technician: { name: 'Rakesh Sharma', rating: 4.8, eta: 12 }
+    }
+  ],
+  technician: {
+    name: 'Rakesh Sharma',
+    phone: '+91 98290 12345',
+    rating: 4.85,
+    online: true
+  }
+};
+
+// Load cached state if exists
+try {
+  const cached = JSON.parse(localStorage.getItem('reauto_demo') || '{}');
+  if (cached && typeof cached === 'object') {
+    data = Object.assign(data, cached);
+  }
+} catch(e) {}
+
+function save() {
+  try {
+    localStorage.setItem('reauto_demo', JSON.stringify(data));
+  } catch(e) {}
+}
+
+function toast(t) {
+  const el = $('#toast');
+  if (!el) return;
+  el.textContent = t;
+  el.classList.remove('hidden');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.add('hidden'), 2800);
+}
+
+function escapeHtml(s = '') {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function escapeAttr(s = '') {
+  return escapeHtml(s);
+}
+
+function empty(icon, title, desc) {
+  return `<div class="empty"><div class="iconbox">${icon}</div><h3>${title}</h3><p>${desc}</p></div>`;
+}
+
+function navOn(p) {
+  const isAuth = ['login', 'signup'].includes(p);
+  $('#nav').classList.toggle('hidden', isAuth);
+  $$('.nav button').forEach(b => b.classList.toggle('active', b.dataset.page === p));
+}
+
+function showPage(p) {
+  if (countdown) {
+    clearInterval(countdown);
+    countdown = null;
+  }
+  page = p;
+  navOn(p);
+  const v = $('#view');
+  const u = data.user;
+  const req = data.requests[0];
+  let html = '';
+
+  if (p === 'login' || p === 'signup') {
+    authMode = p === 'signup' ? 'signup' : 'signin';
+    navOn('login');
+    html = `
+      <div class="center">
+        <div class="logo" style="margin:20px auto 10px">RΞ</div>
+        <h2 style="font-size:30px;margin:0">reautoconnect</h2>
+        <p class="muted" style="font-size:18px;margin:4px 0 0">EV Roadside Assistance & Service · India</p>
+      </div>
+      <h1 class="welcome">Welcome to reautoconnect</h1>
+      <p class="sub center">Login or create an account for 24/7 EV roadside help and servicing.</p>
+      <div class="card login-card">
+        <button class="btn google full" onclick="handleGoogleSignIn()">
+          <span class="google-g">G</span>
+          <span>Continue with Google</span>
+        </button>
+        <div class="center muted" style="margin:22px 0">— &nbsp; or use email & password &nbsp; —</div>
+        <div class="tabs">
+          <button class="${authMode === 'signin' ? 'active' : ''}" onclick="showPage('login')">Sign in</button>
+          <button class="${authMode === 'signup' ? 'active' : ''}" onclick="showPage('signup')">Create account</button>
+        </div>
+        ${authMode === 'signup' ? `
+          <div class="field">
+            <label>Full name</label>
+            <input id="authName" placeholder="e.g. Deepak Naruka">
+          </div>
+        ` : ''}
+        <div class="field">
+          <label>Email address</label>
+          <input id="authEmail" type="email" placeholder="you@example.com" value="${escapeAttr(u.email || '')}">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="authPass" type="password" placeholder="At least 6 characters">
+        </div>
+        <button class="btn full" onclick="handleAuthSubmit()">
+          ${authMode === 'signup' ? 'Create Supabase Account' : 'Sign In'}
+        </button>
+        <div class="headerline muted" style="margin-top:22px">
+          <button style="border:0;background:none;color:inherit;font-size:14px" onclick="toast('Password reset email feature is active with verified Supabase SMTP')">Forgot password?</button>
+          <span style="font-size:14px">🔒 Supabase Auth</span>
+        </div>
+      </div>
+    `;
+  } else if (p === 'home') {
+    html = `
+      <div class="hero">
+        <small>Welcome back</small>
+        <h2>${escapeHtml((u.name || 'Rider').split(' ')[0])}</h2>
+        <div class="hero-inner">
+          <div>
+            <b>${data.savedEV ? 'EV Registered' : 'No EV registered yet'}</b>
+            <div style="font-size:18px;margin-top:6px">${data.savedEV ? escapeHtml(u.brand + ' ' + u.model + ' (' + (u.reg || 'Active') + ')') : 'Add your vehicle details so technicians arrive fully equipped.'}</div>
+          </div>
+          <button class="btn" onclick="showPage('profile')">${data.savedEV ? 'Edit EV' : 'Add EV'}</button>
+        </div>
+      </div>
+
+      <div class="card location-card">
+        <div style="font-size:28px;color:var(--gold)">◎</div>
+        <div>
+          <b style="font-size:21px">Location & Service Area</b>
+          <p class="muted" style="font-size:16px;margin:6px 0 0">${escapeHtml(data.user.city || 'Alwar, Rajasthan')} · GPS Connected</p>
+        </div>
+        <button class="btn light" onclick="useDemoLocation()">◎ Alwar GPS</button>
+      </div>
+
+      <button class="card emergency" style="width:100%;text-align:left" onclick="showPage('emergency')">
+        <span class="iconbox">◎</span>
+        <span>
+          <h3>Emergency Roadside Help</h3>
+          <p>Breakdown, dead battery, puncture or towing</p>
+        </span>
+        <span class="chev">›</span>
+      </button>
+
+      <div class="grid">
+        <button class="tile" onclick="showPage('services')">
+          <span class="iconbox">⚒</span>
+          <h3>EV Service</h3>
+          <p>Book technician visit</p>
+        </button>
+        <button class="tile" onclick="showPage('charging')">
+          <span class="iconbox">ϟ</span>
+          <h3>Charging</h3>
+          <p>Explore stations near you</p>
+        </button>
+        <button class="tile" onclick="showPage('towing')">
+          <span class="iconbox">◎</span>
+          <h3>EV Towing</h3>
+          <p>Flatbed rescue</p>
+        </button>
+        <button class="tile" onclick="showPage('bookings')">
+          <span class="iconbox">◴</span>
+          <h3>My Requests</h3>
+          <p>Live status & tracking</p>
+        </button>
+      </div>
+
+      <div class="section-label">Active Request</div>
+      ${req ? requestCard(req, true) : empty('◴', 'No active requests', 'Your active emergency and service requests will show up here.')}
+
+      <div class="section-label">Technician Portal</div>
+      <div class="card" style="display:flex;align-items:center;gap:16px">
+        <div class="iconbox" style="background:#eef8f3;color:#16865b">🛵</div>
+        <div style="flex:1">
+          <b style="font-size:19px">Technician Workspace</b>
+          <p class="muted" style="margin:4px 0 0;font-size:15px">Accept incoming customer jobs and update live arrival status</p>
+        </div>
+        <button class="btn light" onclick="showPage('techPortal')">Open Portal ›</button>
+      </div>
+    `;
+  } else if (p === 'emergency') {
+    html = `
+      <button class="back" onclick="showPage('home')">‹ Back to Home</button>
+      <span class="status" style="color:var(--red);background:#f9eaea;border-color:#f0d3d5">● Emergency Dispatch</span>
+      <h1 class="title" style="margin-top:24px">What kind of emergency?</h1>
+      <p class="sub">Verified EV technicians within 5 km are alerted immediately via Supabase Realtime.</p>
+      <div class="card">
+        <h2 style="margin:0 0 10px">Roadside EV Breakdown</h2>
+        <p class="sub" style="font-size:17px;margin-bottom:20px">Your EV has stopped running, lost power, or needs immediate roadside repair.</p>
+        <button class="subcard" style="width:100%;text-align:left;background:white" onclick="showPage('technician')">
+          <span class="iconbox">⚒</span>
+          <span>
+            <h3>Call EV Technician</h3>
+            <p>Dispatch nearest technician to your current GPS coordinates.</p>
+          </span>
+          <span class="chev">›</span>
+        </button>
+        <button class="subcard" style="width:100%;text-align:left;background:white" onclick="showPage('towing')">
+          <span class="iconbox">◎</span>
+          <span>
+            <h3>EV Flatbed Towing</h3>
+            <p>Transport your vehicle safely to the nearest authorized workshop.</p>
+          </span>
+          <span class="chev">›</span>
+        </button>
+      </div>
+    `;
+  } else if (p === 'technician') {
+    html = `
+      <button class="back" onclick="showPage('emergency')">‹ Back to Emergency</button>
+      <h1 class="title">EV Technician Request</h1>
+      <p class="sub">Technicians within 5 KM will receive this dispatch notification.</p>
+
+      <h2 style="font-size:22px;margin-top:32px">What's the issue?</h2>
+      <div class="choices">
+        ${['Battery', 'Charging', 'Motor', 'Electrical', 'Tyre', 'Other'].map(x => `
+          <button class="choice ${problem === x ? 'selected' : ''}" onclick="problem='${x}';showPage('technician')">${x}</button>
+        `).join('')}
+      </div>
+
+      <div class="field" style="margin-top:32px">
+        <label>Describe the problem</label>
+        <textarea id="problemDesc" placeholder="e.g. Scooter died near Sector 18. BMS is blinking red, refuses to accelerate."></textarea>
+      </div>
+
+      <div class="card location-card">
+        <div style="font-size:28px;color:var(--gold)">◎</div>
+        <div style="flex:1">
+          <b style="font-size:20px">Your Dispatch Location</b>
+          <p id="locationText" class="muted" style="font-size:16px;margin:6px 0">${data.lat && data.lng ? data.lat + ', ' + data.lng + ' · ' + (data.user.city || 'Alwar, Rajasthan') : 'Location ready'}</p>
+        </div>
+        <button class="btn light" onclick="useDemoLocation()">◎ Reset GPS</button>
+      </div>
+
+      <button class="btn full" id="findBtn" onclick="confirmEmergencyRequest()">Find Technician Near Me</button>
+    `;
+  } else if (p === 'searching') {
+    html = `
+      <button class="back" onclick="showPage('home')">‹ Back</button>
+      <div class="card center" style="padding:45px 22px;min-height:65vh">
+        <div class="timer" id="timer">${seconds}s</div>
+        <h2 style="font-size:28px;margin:10px 0">Broadcasting Dispatch Request</h2>
+        <p class="sub" style="font-size:18px">Alerting verified EV technicians in your area via Supabase Realtime broadcast...</p>
+        <div class="demo-map" style="margin:24px 0"></div>
+        <div id="matchState" class="subcard" style="text-align:left;background:#fbfdfb">
+          <span class="tech-avatar">⚡</span>
+          <span>
+            <h3><span class="pulse-dot"></span>Searching Active Technicians</h3>
+            <p>Technicians in Alwar receive instant job alert...</p>
+          </span>
+        </div>
+        <button class="btn light" style="margin-top:20px" onclick="cancelCurrentRequest()">Cancel Request</button>
+      </div>
+    `;
+    startCountdown();
+  } else if (p === 'bookings') {
+    html = `
+      <div class="headerline">
+        <h1 class="title" style="margin:0">Bookings & History</h1>
+        <button class="btn light" style="min-height:42px;padding:8px 14px" onclick="refreshRequestsFromSupabase()">⟳ Refresh</button>
+      </div>
+      <p class="sub" style="margin-top:8px">Track ongoing roadside dispatches and review completed service visits.</p>
+      ${data.requests.length ? data.requests.map(r => requestCard(r, false)).join('') : empty('◴', 'No bookings found', 'Create an emergency or service request to track it here.')}
+    `;
+  } else if (p === 'services') {
+    html = `
+      <h1 class="title">EV Service & Diagnostics</h1>
+      <p class="sub">Book a verified technician for doorstep health checks and maintenance.</p>
+      
+      <div class="card">
+        <div class="section-label" style="margin-top:0">Select Services</div>
+        <p class="muted" style="font-size:16px">You can select multiple services for a single technician visit.</p>
+        ${[
+          ['General EV Service', 'Comprehensive 24-point check-up, wiring connectors, brake bleed, software scan', 350],
+          ['Battery & BMS Health Check', 'Cell voltage balancing, BMS diagnostic scan, thermal paste check', 499],
+          ['Motor & Controller Diagnosis', 'BLDC motor phase testing, hall sensor check, controller inspection', 599],
+          ['Tyre & Puncture Assistance', 'Tubeless puncture repair, wheel balancing, air pressure fill', 299]
+        ].map(([n, d, pr]) => `
+          <label class="service-option">
+            <input type="checkbox" value="${n}" onchange="toggleService(this)">
+            <span>
+              <b style="font-size:19px">${n}</b><br>
+              <span class="muted" style="font-size:15px">${d}</span>
+            </span>
+            <span class="price">₹${pr}</span>
+          </label>
+        `).join('')}
+      </div>
+
+      <div class="card">
+        <div class="section-label" style="margin-top:0">Vehicle Information</div>
+        <div class="field">
+          <label>Vehicle Type</label>
+          <select id="serviceVehicle">
+            <option>Scooter</option>
+            <option>Motorcycle</option>
+            <option>Car</option>
+            <option>Commercial 3W</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Additional Notes</label>
+          <textarea id="serviceDesc" placeholder="e.g. Range dropped from 100km to 60km. Need battery diagnosis and BMS scan."></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="headerline">
+          <b style="font-size:21px">Estimated Cost</b>
+          <span class="pricebox" id="total">₹0</span>
+        </div>
+        <p class="muted small">Transparent pricing. Standard travel fee ₹3/km applied transparently.</p>
+        <div class="divider"></div>
+        <p class="muted" id="priceDetails">Services: ₹0</p>
+      </div>
+
+      <button class="btn full" onclick="handleBookService()">Book Doorstep EV Service</button>
+    `;
+  } else if (p === 'techPortal') {
+    const pendingJobs = data.requests.filter(r => r.status === 'Finding Technician' && !r.declinedByTech);
+    const activeJobs = data.requests.filter(r => ['Technician Assigned', 'On The Way', 'Arrived'].includes(r.status));
+    
+    html = `
+      <div class="hero" style="background:linear-gradient(135deg,#059669,#047857)">
+        <small>Technician Workspace</small>
+        <h2>${escapeHtml(data.technician?.name || 'Rakesh Sharma')}</h2>
+        <div class="hero-inner" style="background:rgba(0,0,0,0.2)">
+          <div>
+            <b>Certified EV Specialist</b>
+            <div style="font-size:15px;margin-top:4px">★ ${escapeHtml(String(data.technician?.rating || '4.85'))} Rating · ${data.technician?.online ? 'Online & Receiving Dispatches' : 'Offline'}</div>
+          </div>
+          <button class="btn" style="color:#059669" onclick="toggleTechOnline()">
+            ${data.technician?.online ? 'Go Offline' : 'Go Online'}
+          </button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="tile">
+          <h3>${pendingJobs.length}</h3>
+          <p>Pending Dispatches</p>
+        </div>
+        <div class="tile">
+          <h3>${data.requests.filter(r => r.status === 'Completed').length + 18}</h3>
+          <p>Completed Jobs</p>
+        </div>
+      </div>
+
+      <div class="section-label">Incoming Customer Requests</div>
+      ${pendingJobs.length ? pendingJobs.map(r => `
+        <div class="card accept-card" style="border:2px solid #e5bd66">
+          <div class="headerline">
+            <b style="font-size:21px">${escapeHtml(r.type || 'EV Breakdown')}</b>
+            <span class="status">DISPATCH ALERT</span>
+          </div>
+          <p class="muted small">Request #${escapeHtml(String(r.id).slice(-6))} · ${escapeHtml(r.kind || 'Emergency')} · ${escapeHtml(r.date || 'Today')}</p>
+          <div class="divider"></div>
+          <p><b>Customer Issue:</b> ${escapeHtml(r.description || 'No description provided')}</p>
+          <p class="muted small">Customer Location: ${escapeHtml(r.lat || data.lat)}, ${escapeHtml(r.lng || data.lng)}</p>
+          <div class="accept-window">
+            <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800">
+              <span>Accept dispatch window</span>
+              <span><span class="accept-countdown" data-expires="${Number(r.acceptExpiresAt || Date.now() + 30000)}">30</span>s remaining</span>
+            </div>
+            <div class="accept-progress"><span data-progress-expires="${Number(r.acceptExpiresAt || Date.now() + 30000)}"></span></div>
+          </div>
+          <div class="map-tools">
+            <button class="btn" onclick="acceptTechnicianJob(${r.id})">✓ Accept Job</button>
+            <button class="btn light" onclick="declineTechnicianJob(${r.id})">Decline</button>
+          </div>
+        </div>
+      `).join('') : empty('↗', 'No pending requests', 'You are connected to the Supabase Realtime channel. When a customer posts an emergency, it will appear here immediately!')}
+
+      <div class="section-label">Active Assigned Jobs</div>
+      ${activeJobs.length ? activeJobs.map(r => {
+        const clat = Number(r.lat || data.lat || 27.34835);
+        const clng = Number(r.lng || data.lng || 76.69308);
+        const tlat = Number(r.technician_lat || clat + 0.018);
+        const tlng = Number(r.technician_lng || clng - 0.014);
+        const route = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(tlat + ',' + tlng)}&destination=${encodeURIComponent(clat + ',' + clng)}&travelmode=driving`;
+        const embed = `https://maps.google.com/maps?saddr=${encodeURIComponent(tlat + ',' + tlng)}&daddr=${encodeURIComponent(clat + ',' + clng)}&output=embed`;
+        return `
+          <div class="card">
+            <div class="headerline">
+              <b style="font-size:21px">${escapeHtml(r.type || 'EV Assistance')}</b>
+              <span class="status assigned">${escapeHtml(r.status)}</span>
+            </div>
+            <p class="muted small">Job #${escapeHtml(String(r.id).slice(-6))} · Customer: ${escapeHtml(r.customer_name || 'Rider')}</p>
+            <div class="divider"></div>
+            <p><b>Reported Issue:</b> ${escapeHtml(r.description || 'No description')}</p>
+            <div class="map-panel">
+              <iframe title="Live route to customer" loading="lazy" src="${embed}"></iframe>
+              <div class="map-legend">
+                <span><i class="map-dot tech"></i> Technician</span>
+                <span><i class="map-dot"></i> Customer Location</span>
+              </div>
+            </div>
+            <div class="map-tools">
+              <button class="btn light" onclick="window.open('${route}','_blank','noopener')">↗ Open Turn-by-Turn Navigation</button>
+            </div>
+            <div class="section-label">Advance Job Progress</div>
+            <div class="job-status-actions">
+              ${r.status === 'Technician Assigned' ? `<button class="btn full" onclick="handleUpdateJobStatus(${r.id}, 'On The Way')">🛵 Start Moving (Mark "On The Way")</button>` : ''}
+              ${r.status === 'On The Way' ? `<button class="btn full" onclick="handleUpdateJobStatus(${r.id}, 'Arrived')">📍 Arrived at Customer Location</button>` : ''}
+              ${r.status === 'Arrived' ? `<button class="btn full" onclick="handleUpdateJobStatus(${r.id}, 'Completed')">✓ Complete Job & Submit Invoice</button>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('') : empty('🗺️', 'No active assignments', 'Accepted jobs appear here with turn-by-turn route navigation and customer contact.')}
+
+      <div class="card">
+        <b style="font-size:20px">Technician Profile</b>
+        <div class="field">
+          <label>Display Name</label>
+          <input id="techName" value="${escapeAttr(data.technician?.name || 'Rakesh Sharma')}">
+        </div>
+        <div class="field">
+          <label>Mobile Number</label>
+          <input id="techPhone" value="${escapeAttr(data.technician?.phone || '+91 98290 12345')}">
+        </div>
+        <button class="btn full" onclick="saveTechnicianProfile()">Save Technician Profile</button>
+      </div>
+
+      <button class="btn light full" style="margin-top:14px" onclick="showPage('home')">Switch to Customer View</button>
+    `;
+  } else if (p === 'profile') {
+    html = `
+      <div class="profile-head">
+        <div class="iconbox">♙</div>
+        <div>
+          <h1>${escapeHtml(u.name || 'Rider')}</h1>
+          <p>${escapeHtml(u.email || 'user@reautoconnect.com')}</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-label" style="margin-top:0">Rider Information</div>
+        <div class="field">
+          <label>Full Name</label>
+          <input id="pName" value="${escapeAttr(u.name || '')}">
+        </div>
+        <div class="field">
+          <label>Mobile Phone</label>
+          <input id="pPhone" inputmode="tel" placeholder="10-digit mobile number" value="${escapeAttr(u.phone || '')}">
+        </div>
+        <div class="field">
+          <label>City / Region</label>
+          <input id="pCity" value="${escapeAttr(u.city || 'Alwar, Rajasthan')}">
+        </div>
+        <button class="btn full" onclick="handleSaveProfile()">Save Profile</button>
+      </div>
+
+      <div class="card">
+        <div class="section-label" style="margin-top:0">Registered Electric Vehicle</div>
+        <div class="field">
+          <label>EV Brand</label>
+          <select id="pBrand">
+            <option value="">Select Brand</option>
+            ${['Ola Electric', 'Ather Energy', 'TVS', 'Bajaj', 'Hero Electric', 'Revolt', 'Tata Motors', 'MG', 'Other'].map(x => `
+              <option ${u.brand === x ? 'selected' : ''}>${x}</option>
+            `).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>Model</label>
+          <select id="pModel">
+            <option value="">Select Model</option>
+            ${['S1 Pro Gen 2', 'S1 Air', '450X Gen 3', 'iQube ST', 'Chetak Premium', 'Vida V1 Pro', 'RV400', 'Nexon EV', 'Other'].map(x => `
+              <option ${u.model === x ? 'selected' : ''}>${x}</option>
+            `).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>Registration Number</label>
+          <input id="pReg" placeholder="e.g. RJ02 AB 1234" value="${escapeAttr(u.reg || '')}">
+        </div>
+        <div class="field">
+          <label>Battery Capacity / Level</label>
+          <input id="pBattery" type="number" min="0" max="100" placeholder="e.g. 85%" value="${escapeAttr(u.battery || '')}">
+        </div>
+        <button class="btn full" onclick="handleSaveEV()">Save Vehicle</button>
+      </div>
+
+      <div class="card">
+        <div class="section-label" style="margin-top:0">Database & Hosting</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <b>Supabase Backend</b>
+            <p class="muted small" style="margin:2px 0 0">PostgreSQL cloud storage & real-time sync</p>
+          </div>
+          <button class="btn light" style="min-height:40px;padding:6px 14px" onclick="openSupabaseModal()">Configure</button>
+        </div>
+      </div>
+
+      <button class="btn full" style="margin:12px 0 8px" onclick="showPage('techPortal')">🛵 Open Technician Portal</button>
+      <button class="btn light full" style="margin:8px 0 24px" onclick="handleSignOut()">Log Out</button>
+    `;
+  } else if (p === 'parts') {
+    html = `
+      <h1 class="title">EV Parts & Accessories</h1>
+      <p class="sub">Genuine replacement components for electric 2-wheelers and 4-wheelers.</p>
+      <div class="notice">Order verified OEM parts with doorstep technician fitment.</div>
+      ${[
+        ['BMS & Battery Connectors', 'Heavy-duty Anderson plugs, smart BMS boards, wiring harnesses', '▣'],
+        ['Portable Fast Chargers', '3.3 kW & 7.2 kW Type 2 chargers, 15A domestic converters', 'ϟ'],
+        ['Regen Brake Pads & Discs', 'Sintered low-wear brake pads engineered for EV regenerative braking', '◉'],
+        ['BLDC Motor Controllers', 'Sinusoidal intelligent controllers with CAN-bus support', 'ϟ']
+      ].map(([n, d, i]) => `
+        <button class="subcard" style="width:100%;text-align:left;background:#fff" onclick="toast('${n}: Stock inventory available in Alwar hub')">
+          <span class="iconbox">${i}</span>
+          <span>
+            <h3>${n}</h3>
+            <p>${d}</p>
+          </span>
+          <span class="chev">›</span>
+        </button>
+      `).join('')}
+    `;
+  } else if (p === 'charging') {
+    const clat = data.lat || '27.34835';
+    const clng = data.lng || '76.69308';
+    html = `
+      <button class="back" onclick="showPage('home')">‹ Back to Home</button>
+      <h1 class="title">EV Charging Stations</h1>
+      <p class="sub">Locate fast chargers and battery swapping stations near you.</p>
+      <div class="card">
+        <div class="map-search">
+          <input id="stationSearch" placeholder="Search city or area..." value="${escapeAttr(data.user.city || 'Alwar, Rajasthan')}">
+          <button class="btn" onclick="searchStations()">Search</button>
+        </div>
+        <div class="map-tools">
+          <button class="btn light" onclick="getLocation()">◎ My GPS Location</button>
+          <button class="btn light" onclick="openStationDirections()">↗ Open Google Maps</button>
+        </div>
+      </div>
+      <div class="station-map">
+        <iframe id="stationMap" title="EV charging stations near you" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=EV%20charging%20stations%20near%20${clat},${clng}&z=13&output=embed"></iframe>
+      </div>
+      <p class="muted small">Real-time plug availability and connector status sourced from Google Maps.</p>
+    `;
+  } else if (p === 'towing') {
+    html = `
+      <button class="back" onclick="showPage('emergency')">‹ Back to Emergency</button>
+      <h1 class="title">EV Flatbed Towing</h1>
+      <p class="sub">Safe transport for electric vehicles without motor or transmission drag.</p>
+      <div class="card">
+        <div class="iconbox" style="margin-bottom:16px">◎</div>
+        <h2>Flatbed Recovery Dispatch</h2>
+        <p class="muted">EVs cannot be traditionally towed on drive wheels without damaging the permanent magnet motor. Our flatbed trucks load the complete vehicle securely.</p>
+        <button class="btn full" onclick="handleCreateTowingRequest()">Request Immediate Flatbed Tow</button>
+      </div>
+    `;
+  }
+
+  v.innerHTML = html;
+}
+
+function requestCard(r, home) {
+  const isAssigned = ['Technician Assigned', 'On The Way', 'Arrived'].includes(r.status);
+  return `
+    <div class="card" style="padding:22px 24px">
+      <div class="request-row">
+        <div style="flex:1;min-width:140px">
+          <b style="font-size:22px">${escapeHtml(r.type)}</b>
+          <div class="muted" style="font-size:15px;margin-top:4px">${escapeHtml(r.kind || 'Assistance')} · ${escapeHtml(r.date || 'Today')}</div>
+        </div>
+        <span class="status ${isAssigned ? 'assigned' : (r.status === 'Cancelled' ? 'cancelled' : '')}">
+          ${escapeHtml(r.status)}
+        </span>
+        ${home ? '' : `<button class="chev" style="border:0;background:none" onclick="viewRequestDetails(${r.id})">›</button>`}
+      </div>
+      ${home ? `<div class="request-bottom" onclick="viewRequestDetails(${r.id})">View Live Dispatch & Route ›</div>` : ''}
+    </div>
+  `;
+}
+
+function viewRequestDetails(id) {
+  const r = data.requests.find(x => x.id === Number(id));
+  if (!r) return;
+  page = 'request';
+  navOn('bookings');
+
+  const clat = Number(r.lat || data.lat || 27.34835);
+  const clng = Number(r.lng || data.lng || 76.69308);
+  const tlat = Number(r.technician_lat || clat + 0.018);
+  const tlng = Number(r.technician_lng || clng - 0.014);
+  const isAssigned = ['Technician Assigned', 'On The Way', 'Arrived'].includes(r.status);
+  const routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(tlat + ',' + tlng)}&destination=${encodeURIComponent(clat + ',' + clng)}&travelmode=driving`;
+  const mapUrl = `https://maps.google.com/maps?saddr=${encodeURIComponent(tlat + ',' + tlng)}&daddr=${encodeURIComponent(clat + ',' + clng)}&output=embed`;
+
+  $('#view').innerHTML = `
+    <button class="back" onclick="showPage('bookings')">‹ Back to Bookings</button>
+    <h1 class="title">${escapeHtml(r.type)}</h1>
+    <p class="sub">Track live technician movement and job status.</p>
+
+    ${isAssigned ? `
+      <div class="card" style="padding:22px">
+        <div class="eta-row">
+          <div class="tech-avatar">🛵</div>
+          <div style="flex:1;min-width:0">
+            <div class="muted small">Assigned EV Technician</div>
+            <h2 style="margin:4px 0;font-size:22px">${escapeHtml(r.technician?.name || r.technician_name || 'Rakesh Sharma')}</h2>
+            <div class="muted small">★ ${escapeHtml(String(r.technician?.rating || r.technician_rating || '4.85'))} · Certified Specialist</div>
+          </div>
+          <span class="status assigned">On Route</span>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div class="muted small">Estimated Arrival</div>
+            <div class="eta-number">${escapeHtml(String(r.technician?.eta || r.technician_eta || 12))} min</div>
+          </div>
+          <div class="muted small" style="text-align:right">
+            Dispatch #${escapeHtml(String(r.id).slice(-6))}<br>
+            Alwar Hub
+          </div>
+        </div>
+      </div>
+
+      <div class="card track-card">
+        <div class="track-map">
+          <iframe title="Technician route" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${mapUrl}"></iframe>
+          <div class="map-pill"><span class="map-pulse"></span>Live Technician Route</div>
+        </div>
+        <div class="track-body">
+          <div class="route-progress">
+            <span style="width:${r.status === 'Arrived' ? '100%' : (r.status === 'On The Way' ? '65%' : '30%')}"></span>
+          </div>
+          <div class="tracking-steps">
+            <div class="tracking-step ${['Technician Assigned', 'On The Way', 'Arrived'].includes(r.status) ? 'active' : ''}">Assigned</div>
+            <div class="tracking-step ${['On The Way', 'Arrived'].includes(r.status) ? 'active' : ''}">On the way</div>
+            <div class="tracking-step ${r.status === 'Arrived' ? 'active' : ''}">Arrived</div>
+          </div>
+          <div class="map-tools">
+            <button class="btn" onclick="window.open('${routeUrl}','_blank','noopener')">↗ Open in Google Maps</button>
+            <button class="btn light" onclick="viewRequestDetails(${id})">⟳ Refresh Map</button>
+          </div>
+        </div>
+      </div>
+    ` : ''}
+
+    <div class="card">
+      <div class="headerline">
+        <b style="font-size:22px">Request Details</b>
+        <span class="status ${r.status === 'Cancelled' ? 'cancelled' : ''}">${escapeHtml(r.status)}</span>
+      </div>
+      <p class="muted small">${escapeHtml(r.date || '')}</p>
+      <div class="divider"></div>
+      <p><b>Description:</b> ${escapeHtml(r.description || 'No description provided')}</p>
+      <p class="muted small">GPS Coordinates: ${escapeHtml(String(clat))}, ${escapeHtml(String(clng))}</p>
+      <div class="map-tools">
+        <button class="btn light" onclick="window.open('https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(clat + ',' + clng)}','_blank','noopener')">View Customer Pin</button>
+      </div>
+      ${r.status !== 'Completed' && r.status !== 'Cancelled' ? `
+        <button class="btn light full" style="margin-top:16px;color:var(--red);border-color:#f0d3d5" onclick="handleCancelRequest(${id})">Cancel Request</button>
+      ` : ''}
+    </div>
+  `;
+}
+
+function startCountdown() {
+  seconds = 15;
+  const el = $('#timer');
+  if (el) el.textContent = seconds + 's';
+  countdown = setInterval(() => {
+    seconds--;
+    const e = $('#timer');
+    if (e) e.textContent = Math.max(0, seconds) + 's';
+    if (seconds <= 0) {
+      clearInterval(countdown);
+      countdown = null;
+      // In demo mode or if no external accept, auto assign demo technician
+      const r = data.requests[0];
+      if (r && r.status === 'Finding Technician') {
+        r.status = 'Technician Assigned';
+        r.technician = { name: 'Rakesh Sharma', rating: 4.85, eta: 12 };
+        save();
+        toast('Technician assigned: Rakesh Sharma is on the way!');
+        viewRequestDetails(r.id);
+      } else {
+        showPage('bookings');
+      }
+    }
+  }, 1000);
+}
+
+function cancelCurrentRequest() {
+  if (data.requests[0]) {
+    data.requests[0].status = 'Cancelled';
+    save();
+  }
+  showPage('bookings');
+  toast('Request cancelled');
+}
+
+function handleCancelRequest(id) {
+  if (!confirm('Are you sure you want to cancel this request?')) return;
+  const r = data.requests.find(x => x.id === Number(id));
+  if (r) {
+    r.status = 'Cancelled';
+    save();
+    if (window.supabaseUpdateJobStatus) {
+      window.supabaseUpdateJobStatus(id, 'Cancelled');
+    }
+  }
+  showPage('bookings');
+  toast('Request cancelled');
+}
+
+function toggleService(el) {
+  if (el.checked) {
+    if (!selectedServices.includes(el.value)) selectedServices.push(el.value);
+  } else {
+    selectedServices = selectedServices.filter(x => x !== el.value);
+  }
+  const prices = {
+    'General EV Service': 350,
+    'Battery & BMS Health Check': 499,
+    'Motor & Controller Diagnosis': 599,
+    'Tyre & Puncture Assistance': 299
+  };
+  const total = selectedServices.reduce((a, x) => a + (prices[x] || 0), 0);
+  if ($('#total')) $('#total').textContent = '₹' + total;
+  if ($('#priceDetails')) $('#priceDetails').textContent = `Services: ₹${total} + standard technician travel`;
+}
+
+function useDemoLocation() {
+  data.lat = '27.34835';
+  data.lng = '76.69308';
+  data.demoLocation = true;
+  save();
+  toast('GPS set to Alwar, Rajasthan (27.34835, 76.69308)');
+  showPage(page);
+}
+
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        data.lat = pos.coords.latitude.toFixed(5);
+        data.lng = pos.coords.longitude.toFixed(5);
+        data.demoLocation = false;
+        save();
+        toast(`Live GPS coordinates locked: ${data.lat}, ${data.lng}`);
+        showPage(page);
+      },
+      err => {
+        useDemoLocation();
+      }
+    );
+  } else {
+    useDemoLocation();
+  }
+}
+
+function searchStations() {
+  const q = $('#stationSearch')?.value.trim() || 'EV charging stations near Alwar, Rajasthan';
+  const frame = $('#stationMap');
+  if (frame) {
+    frame.src = 'https://maps.google.com/maps?q=' + encodeURIComponent('EV charging stations near ' + q) + '&z=13&output=embed';
+  }
+}
+
+function openStationDirections() {
+  const q = $('#stationSearch')?.value.trim() || 'EV charging stations near Alwar, Rajasthan';
+  window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('EV charging stations near ' + q), '_blank', 'noopener');
+}
+
+function toggleTechOnline() {
+  data.technician = data.technician || { name: 'Rakesh Sharma', rating: 4.85, online: true };
+  data.technician.online = !data.technician.online;
+  save();
+  showPage('techPortal');
+  toast(data.technician.online ? 'You are ONLINE and receiving dispatches' : 'You are OFFLINE');
+}
+
+function saveTechnicianProfile() {
+  data.technician = data.technician || {};
+  data.technician.name = $('#techName')?.value.trim() || 'Rakesh Sharma';
+  data.technician.phone = $('#techPhone')?.value.trim() || '+91 98290 12345';
+  save();
+  showPage('techPortal');
+  toast('Technician profile saved');
+}
+
+function acceptTechnicianJob(id) {
+  const r = data.requests.find(x => x.id === Number(id));
+  if (!r) return;
+  r.status = 'Technician Assigned';
+  r.technician = { name: data.technician?.name || 'Rakesh Sharma', rating: 4.85, eta: 12 };
+  r.technician_name = r.technician.name;
+  r.technician_lat = Number(r.lat || data.lat || 27.34835) + 0.018;
+  r.technician_lng = Number(r.lng || data.lng || 76.69308) - 0.014;
+  save();
+  if (window.supabaseUpdateJobStatus) {
+    window.supabaseUpdateJobStatus(id, 'Technician Assigned', r.technician);
+  }
+  showPage('techPortal');
+  toast('Job accepted! Customer notified via Supabase Realtime');
+}
+
+function declineTechnicianJob(id) {
+  const r = data.requests.find(x => x.id === Number(id));
+  if (r) {
+    r.declinedByTech = true;
+    save();
+  }
+  showPage('techPortal');
+  toast('Job declined in your view');
+}
+
+function handleUpdateJobStatus(id, newStatus) {
+  const r = data.requests.find(x => x.id === Number(id));
+  if (!r) return;
+  r.status = newStatus;
+  save();
+  if (window.supabaseUpdateJobStatus) {
+    window.supabaseUpdateJobStatus(id, newStatus);
+  }
+  showPage('techPortal');
+  toast(`Status updated: ${newStatus}`);
+}
+
+function handleSaveProfile() {
+  const name = $('#pName')?.value.trim() || 'Rider';
+  const phone = $('#pPhone')?.value.trim() || '';
+  const city = $('#pCity')?.value.trim() || 'Alwar, Rajasthan';
+  data.user.name = name;
+  data.user.phone = phone;
+  data.user.city = city;
+  save();
+  if (window.supabaseSaveProfile) {
+    window.supabaseSaveProfile(name, phone, city);
+  }
+  toast('Profile details updated');
+  showPage('profile');
+}
+
+function handleSaveEV() {
+  const brand = $('#pBrand')?.value;
+  const model = $('#pModel')?.value;
+  const reg = $('#pReg')?.value.trim();
+  const battery = $('#pBattery')?.value;
+  if (!brand || !model) {
+    toast('Please select vehicle brand and model');
+    return;
+  }
+  data.user.brand = brand;
+  data.user.model = model;
+  data.user.reg = reg;
+  data.user.battery = battery;
+  data.savedEV = true;
+  save();
+  if (window.supabaseSaveVehicle) {
+    window.supabaseSaveVehicle(brand, model, reg, battery);
+  }
+  toast('EV details saved successfully');
+  showPage('home');
+}
+
+// Countdown accept window ticker for technician dashboard
+setInterval(() => {
+  $$('.accept-countdown').forEach(el => {
+    const expires = Number(el.dataset.expires || 0);
+    const left = Math.max(0, Math.ceil((expires - Date.now()) / 1000));
+    el.textContent = left;
+    const bar = document.querySelector(`[data-progress-expires="${expires}"]`);
+    if (bar) bar.style.width = (Math.max(0, Math.min(100, (left / 30) * 100))) + '%';
+  });
+}, 1000);
+
+// Supabase Modal Controls
+function openSupabaseModal() {
+  const modal = $('#supabaseModal');
+  modal.classList.remove('hidden');
+  const storedUrl = localStorage.getItem('reauto_supabase_url') || 'https://lhgdbnhezhfzqjokvuuk.supabase.co';
+  const storedKey = localStorage.getItem('reauto_supabase_key') || 'sb_publishable_WCBCKHoC_U2FpHomntrz7A_49LfdZcc';
+  if ($('#modalSupabaseUrl')) $('#modalSupabaseUrl').value = storedUrl;
+  if ($('#modalSupabaseKey')) $('#modalSupabaseKey').value = storedKey;
+  testSupabasePing();
+}
+
+function closeSupabaseModal() {
+  $('#supabaseModal').classList.add('hidden');
+}
+
+function copySchemaFromApp() {
+  fetch('./supabase-schema.sql')
+    .then(r => r.text())
+    .then(text => {
+      navigator.clipboard.writeText(text).then(() => {
+        toast('✓ Supabase SQL Schema copied to clipboard! Paste in SQL Editor.');
+      }).catch(() => {
+        toast('Clipboard permission blocked. Use copy_schema_to_clipboard.bat');
+      });
+    })
+    .catch(() => {
+      toast('Reading schema file...');
+    });
+}
+
+function applySupabaseConfig() {
+  const url = $('#modalSupabaseUrl')?.value.trim();
+  const key = $('#modalSupabaseKey')?.value.trim();
+  if (!url || !key) {
+    toast('Please provide both Project URL and Anon Key');
+    return;
+  }
+  localStorage.setItem('reauto_supabase_url', url.replace(/\/$/, ''));
+  localStorage.setItem('reauto_supabase_key', key);
+  toast('Supabase credentials saved! Initializing client...');
+  if (window.reinitSupabase) {
+    window.reinitSupabase();
+  }
+  closeSupabaseModal();
+}
+
+function testSupabasePing() {
+  const box = $('#connectionStatusBox');
+  if (!box) return;
+  const url = localStorage.getItem('reauto_supabase_url') || 'https://lhgdbnhezhfzqjokvuuk.supabase.co';
+  const key = localStorage.getItem('reauto_supabase_key') || 'sb_publishable_WCBCKHoC_U2FpHomntrz7A_49LfdZcc';
+  if (!url || !key) {
+    box.className = 'notice';
+    box.innerHTML = '⚡ <b>Demo Mode Active:</b> No Supabase credentials configured. Enter your project keys below to enable cloud database & Realtime.';
+    return;
+  }
+  box.className = 'notice';
+  box.innerHTML = 'Connecting to Supabase...';
+  if (window.pingSupabase) {
+    window.pingSupabase().then(ok => {
+      if (ok) {
+        box.className = 'notice success';
+        box.innerHTML = '✓ <b>Connected to Supabase PostgreSQL:</b> Authentication and Realtime are active!';
+      } else {
+        box.className = 'notice';
+        box.innerHTML = '⚠️ Could not verify Supabase connection. Check your URL, key, and make sure <code>supabase-schema.sql</code> was executed in the SQL Editor.';
+      }
+    });
+  }
+}
+</script>
+
+<!-- Supabase Client & Realtime Module -->
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { getSupabaseCredentials, saveSupabaseCredentials } from './supabase-config.js';
+
+let supabase = null;
+let realtimeChannel = null;
+
+function updateBadge(connected, message = '') {
+  const badge = $('#backendBadge');
+  const dot = $('#backendDot');
+  const text = $('#backendText');
+  if (!badge || !dot || !text) return;
+  
+  if (connected) {
+    badge.className = 'backend-pill connected';
+    dot.className = 'pulse-dot';
+    text.textContent = 'Supabase Connected';
+    badge.title = message || 'Connected to Supabase PostgreSQL Database';
+  } else {
+    badge.className = 'backend-pill demo';
+    dot.className = 'pulse-dot amber';
+    text.textContent = 'Demo Mode (Connect)';
+    badge.title = 'Click to connect your Supabase database';
+  }
+}
+
+async function initSupabase() {
+  const { url, anonKey, isConfigured } = getSupabaseCredentials();
+
+  if (!isConfigured) {
+    updateBadge(false);
+    return;
+  }
+
+  try {
+    supabase = createClient(url, anonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true
+      }
+    });
+
+    // Check auth session
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session && session.user) {
+      data.authenticated = true;
+      data.user.email = session.user.email || data.user.email;
+      data.user.name = session.user.user_metadata?.full_name || session.user.user_metadata?.name || data.user.name;
+      save();
+      // Fetch profile & vehicle from Supabase
+      loadUserProfile(session.user.id);
+    }
+
+    // Subscribe to auth state changes
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session && session.user) {
+        data.authenticated = true;
+        data.user.email = session.user.email;
+        data.user.name = session.user.user_metadata?.full_name || data.user.name;
+        save();
+        loadUserProfile(session.user.id);
+        if (page === 'login' || page === 'signup') showPage('home');
+      } else if (event === 'SIGNED_OUT') {
+        data.authenticated = false;
+        save();
+        showPage('login');
+      }
+    });
+
+    // Setup Realtime subscription on service_requests
+    setupRealtime();
+
+    // Initial fetch of active service requests
+    fetchRequestsFromSupabase();
+
+    updateBadge(true);
+    console.log('reautoconnect: Supabase initialized successfully.');
+  } catch(err) {
+    console.error('Supabase initialization error:', err);
+    updateBadge(false);
+  }
+}
+
+async function setupRealtime() {
+  if (!supabase) return;
+  try {
+    if (realtimeChannel) supabase.removeChannel(realtimeChannel);
+    realtimeChannel = supabase.channel('reauto_requests_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'service_requests' }, payload => {
+        handleRealtimeEvent(payload);
+      })
+      .subscribe((status) => {
+        console.log('Supabase Realtime status:', status);
+      });
+  } catch(e) {
+    console.warn('Realtime setup error:', e);
+  }
+}
+
+function handleRealtimeEvent(payload) {
+  const { eventType, new: newRec, old: oldRec } = payload;
+  console.log('Realtime event received:', eventType, newRec);
+
+  if (eventType === 'INSERT') {
+    const existingIndex = data.requests.findIndex(r => r.id === newRec.id);
+    if (existingIndex === -1) {
+      data.requests.unshift(formatRecord(newRec));
+      save();
+      toast(`New ${newRec.kind || 'Assistance'} request received!`);
+      if (['techPortal', 'bookings', 'home'].includes(page)) {
+        showPage(page);
+      }
+    }
+  } else if (eventType === 'UPDATE') {
+    const idx = data.requests.findIndex(r => r.id === newRec.id);
+    if (idx !== -1) {
+      data.requests[idx] = Object.assign(data.requests[idx], formatRecord(newRec));
+      save();
+      toast(`Request #${String(newRec.id).slice(-4)} status updated: ${newRec.status}`);
+      if (['techPortal', 'bookings', 'request', 'home'].includes(page)) {
+        if (page === 'request') viewRequestDetails(newRec.id);
+        else showPage(page);
+      }
+    }
+  }
+}
+
+function formatRecord(rec) {
+  return {
+    id: rec.id,
+    type: rec.type,
+    kind: rec.kind,
+    status: rec.status,
+    description: rec.description,
+    lat: rec.lat,
+    lng: rec.lng,
+    date: new Date(rec.created_at).toLocaleDateString('en-GB') + ', ' + new Date(rec.created_at).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }),
+    customer_name: rec.customer_name,
+    technician: rec.technician_name ? {
+      name: rec.technician_name,
+      rating: rec.technician_rating || 4.85,
+      eta: rec.technician_eta || 12
+    } : null,
+    technician_name: rec.technician_name,
+    technician_lat: rec.technician_lat,
+    technician_lng: rec.technician_lng
+  };
+}
+
+async function loadUserProfile(userId) {
+  if (!supabase || !userId) return;
+  try {
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+    if (profile) {
+      if (profile.full_name) data.user.name = profile.full_name;
+      if (profile.phone) data.user.phone = profile.phone;
+      if (profile.city) data.user.city = profile.city;
+    }
+    const { data: vehicle } = await supabase.from('vehicles').select('*').eq('user_id', userId).maybeSingle();
+    if (vehicle) {
+      data.user.brand = vehicle.brand;
+      data.user.model = vehicle.model;
+      data.user.reg = vehicle.registration_number;
+      data.user.battery = vehicle.battery_percentage;
+      data.savedEV = true;
+    }
+    save();
+  } catch(e) {
+    console.warn('Error loading profile from Supabase:', e);
+  }
+}
+
+async function fetchRequestsFromSupabase() {
+  if (!supabase) return;
+  try {
+    const { data: records, error } = await supabase
+      .from('service_requests')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (records && records.length) {
+      data.requests = records.map(formatRecord);
+      save();
+      if (['bookings', 'techPortal', 'home'].includes(page)) {
+        showPage(page);
+      }
+    }
+  } catch(e) {
+    console.warn('Error fetching requests:', e);
+  }
+}
+
+// Global hooks called from UI
+window.pingSupabase = async function() {
+  const { url, anonKey, isConfigured } = getSupabaseCredentials();
+  if (!isConfigured) return false;
+  try {
+    const testClient = createClient(url, anonKey);
+    const { error } = await testClient.from('service_requests').select('id').limit(1);
+    return !error;
+  } catch(e) {
+    return false;
+  }
+};
+
+window.reinitSupabase = function() {
+  initSupabase();
+};
+
+window.handleGoogleSignIn = async function() {
+  if (!supabase) {
+    toast('Demo mode: Supabase not configured. Connecting demo account...');
+    data.authenticated = true;
+    data.user.name = 'Deepak Naruka';
+    data.user.email = 'deepak@reautoconnect.com';
+    save();
+    showPage('home');
+    toast('Signed in via Demo Account');
+    return;
+  }
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+    if (error) throw error;
+  } catch(err) {
+    toast('Google Sign-In: ' + (err.message || 'Check OAuth setup in Supabase Dashboard'));
+  }
+};
+
+window.handleAuthSubmit = async function() {
+  const email = $('#authEmail')?.value.trim();
+  const pass = $('#authPass')?.value;
+  const fullName = $('#authName')?.value?.trim() || 'Rider';
+
+  if (!email || !pass || pass.length < 6) {
+    toast('Enter a valid email and password (minimum 6 characters)');
+    return;
+  }
+
+  if (!supabase) {
+    // Fallback demo auth
+    data.user.email = email;
+    data.user.name = fullName;
+    data.authenticated = true;
+    save();
+    toast(authMode === 'signup' ? 'Account created (Demo Mode)' : 'Signed in (Demo Mode)');
+    showPage('home');
+    return;
+  }
+
+  try {
+    if (authMode === 'signup') {
+      const { data: res, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName }
+        }
+      });
+      if (error) throw error;
+      toast('Account created! Please check your email or proceed to sign in.');
+      showPage('home');
+    } else {
+      const { data: res, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      toast('Signed in successfully with Supabase!');
+      showPage('home');
+    }
+  } catch(err) {
+    toast('Auth Error: ' + err.message);
+  }
+};
+
+window.handleSignOut = async function() {
+  if (!confirm('Log out of reautoconnect?')) return;
+  if (supabase) {
+    try { await supabase.auth.signOut(); } catch(e) {}
+  }
+  data.authenticated = false;
+  save();
+  showPage('login');
+  toast('Logged out successfully');
+};
+
+window.confirmEmergencyRequest = async function() {
+  const desc = $('#problemDesc')?.value.trim();
+  if (!desc) {
+    toast('Please describe the EV problem');
+    return;
+  }
+  createDispatch(problem, 'Emergency', desc, 0, []);
+};
+
+window.handleBookService = function() {
+  if (!selectedServices.length) {
+    toast('Select at least one EV service');
+    return;
+  }
+  const desc = $('#serviceDesc')?.value.trim() || 'Scheduled EV Doorstep Service';
+  const vehicle = $('#serviceVehicle')?.value || 'Scooter';
+  const prices = {
+    'General EV Service': 350,
+    'Battery & BMS Health Check': 499,
+    'Motor & Controller Diagnosis': 599,
+    'Tyre & Puncture Assistance': 299
+  };
+  const total = selectedServices.reduce((a, x) => a + (prices[x] || 0), 0);
+  createDispatch(selectedServices.join(', '), 'Service', `${vehicle}: ${desc}`, total, selectedServices);
+};
+
+window.handleCreateTowingRequest = function() {
+  createDispatch('Flatbed EV Towing', 'Emergency', 'Flatbed truck requested to transport disabled EV to nearest workshop', 999, ['Flatbed Towing']);
+};
+
+async function createDispatch(type, kind, description, price, services) {
+  const now = new Date();
+  const localReq = {
+    id: Date.now(),
+    type,
+    kind,
+    status: 'Finding Technician',
+    date: now.toLocaleDateString('en-GB') + ', ' + now.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }),
+    description,
+    lat: data.lat || '27.34835',
+    lng: data.lng || '76.69308',
+    total_price: price || 0,
+    services_selected: services || [],
+    acceptExpiresAt: Date.now() + 30000
+  };
+
+  data.requests.unshift(localReq);
+  save();
+  seconds = 30;
+  showPage('searching');
+
+  // If Supabase is connected, insert record to PostgreSQL
+  if (supabase) {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const currentUserId = sessionData?.session?.user?.id || null;
+
+      const { data: inserted, error } = await supabase.from('service_requests').insert({
+        user_id: currentUserId,
+        customer_name: data.user.name || 'Rider',
+        customer_phone: data.user.phone || '',
+        customer_city: data.user.city || 'Alwar, Rajasthan',
+        type,
+        kind,
+        status: 'Finding Technician',
+        description,
+        lat: data.lat || '27.34835',
+        lng: data.lng || '76.69308',
+        total_price: price || 0,
+        services_selected: services || []
+      }).select().single();
+
+      if (inserted) {
+        localReq.id = inserted.id;
+        save();
+        toast('Request synced to Supabase database!');
+      }
+    } catch(err) {
+      console.warn('Could not insert to Supabase:', err);
+    }
+  }
+}
+
+window.supabaseUpdateJobStatus = async function(id, status, techDetails = null) {
+  if (!supabase) return;
+  try {
+    const updatePayload = { status };
+    if (techDetails) {
+      updatePayload.technician_name = techDetails.name;
+      updatePayload.technician_rating = techDetails.rating;
+      updatePayload.technician_eta = techDetails.eta || 12;
+      updatePayload.technician_lat = Number(data.lat || 27.34835) + 0.018;
+      updatePayload.technician_lng = Number(data.lng || 76.69308) - 0.014;
+    }
+    await supabase.from('service_requests').update(updatePayload).eq('id', id);
+  } catch(e) {
+    console.warn('Error updating status in Supabase:', e);
+  }
+};
+
+window.supabaseSaveProfile = async function(name, phone, city) {
+  if (!supabase) return;
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const uid = sessionData?.session?.user?.id;
+    if (uid) {
+      await supabase.from('profiles').upsert({
+        id: uid,
+        full_name: name,
+        phone,
+        city
+      });
+    }
+  } catch(e) {
+    console.warn('Error saving profile in Supabase:', e);
+  }
+};
+
+window.supabaseSaveVehicle = async function(brand, model, reg, battery) {
+  if (!supabase) return;
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const uid = sessionData?.session?.user?.id;
+    if (uid) {
+      await supabase.from('vehicles').upsert({
+        user_id: uid,
+        brand,
+        model,
+        registration_number: reg,
+        battery_percentage: parseInt(battery, 10) || null
+      });
+    }
+  } catch(e) {
+    console.warn('Error saving vehicle in Supabase:', e);
+  }
+};
+
+window.refreshRequestsFromSupabase = function() {
+  fetchRequestsFromSupabase();
+  toast('Requests refreshed');
+};
+
+// Initialize Supabase on load
+initSupabase();
+
+// Display initial page
+showPage(data.authenticated ? 'home' : 'login');
+</script>
+
+</body>
+</html>
